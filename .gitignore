@@ -1,0 +1,6 @@
+.venv/
+.idea/
+.env
+__pycache__/
+captcha.png
+cookies.pkl
