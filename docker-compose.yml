@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  auto-learn:
+    build: .
+    container_name: auto-learn-platform
+    environment:
+      - USERNAME=${USERNAME}
+      - PASSWORD=${PASSWORD}
+      - CAPTCHA_API_URL=${CAPTCHA_API_URL}
+      - CAPTCHA_API_KEY=${CAPTCHA_API_KEY}
+      - CHROME_DRIVER_PATH=/usr/local/bin/chromedriver
+      - MAX_PAGES=${MAX_PAGES:-999}
+    volumes:
+      # 持久化 cookies 和日志
+      - ./cookies.pkl:/app/cookies.pkl
+      - ./logs:/app/logs
+    restart: unless-stopped
+    # 共享内存大小（Chrome 需要）
+    shm_size: '2gb'
