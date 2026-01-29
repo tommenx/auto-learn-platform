@@ -122,7 +122,7 @@ def main():
     chrome_options = Options()
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--headless")  # 可选：启用无界面模式
+    # chrome_options.add_argument("--headless")  # 可选：启用无界面模式
 
     driver = None
     try:
@@ -520,7 +520,66 @@ def login(driver, username, password):
     raise Exception("登录超时，未能在规定时间内完成登录")
 
 def verify(captcha_png_path):
-    """识别验证码"""
+    """识别验证码，根据配置选择自动识别或手动输入"""
+    captcha_mode = os.getenv("CAPTCHA_MODE", "auto").lower()
+
+    # 检查是否需要自动切换到手动模式
+    if captcha_mode == "auto":
+        url = os.getenv("CAPTCHA_API_URL")
+        token = os.getenv("CAPTCHA_API_KEY")
+        if not url or not token:
+            logger.warning("验证码 API 未配置，自动切换到手动输入模式")
+            captcha_mode = "manual"
+
+    if captcha_mode == "manual":
+        return verify_manual(captcha_png_path)
+    else:
+        return verify_auto(captcha_png_path)
+
+
+def verify_manual(captcha_png_path):
+    """手动输入验证码"""
+    try:
+        import subprocess
+        import sys
+
+        logger.info("请查看验证码图片并手动输入验证码")
+        logger.info(f"验证码图片路径: {os.path.abspath(captcha_png_path)}")
+
+        # 尝试打开验证码图片（支持多平台）
+        try:
+            if sys.platform == "darwin":  # macOS
+                subprocess.Popen(["open", captcha_png_path])
+            elif sys.platform == "win32":  # Windows
+                subprocess.Popen(["start", "", captcha_png_path], shell=True)
+            else:  # Linux
+                subprocess.Popen(["xdg-open", captcha_png_path])
+
+            logger.info("已自动打开验证码图片")
+        except Exception as e:
+            logger.warning(f"无法自动打开验证码图片: {str(e)}")
+            logger.info("请手动打开验证码图片查看")
+
+        # 等待用户输入验证码
+        print("\n" + "=" * 50)
+        print("请输入验证码（输入后按回车）:")
+        print("=" * 50)
+        captcha_code = input().strip()
+
+        if captcha_code:
+            logger.info(f"用户输入的验证码: {captcha_code}")
+            return captcha_code
+        else:
+            logger.error("验证码输入为空")
+            return None
+
+    except Exception as e:
+        logger.error(f"手动输入验证码时发生错误: {str(e)}")
+        return None
+
+
+def verify_auto(captcha_png_path):
+    """自动识别验证码（调用 API）"""
     try:
         with open(captcha_png_path, 'rb') as f:
             b = base64.b64encode(f.read()).decode()
