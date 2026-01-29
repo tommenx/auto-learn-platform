@@ -122,7 +122,13 @@ def main():
     chrome_options = Options()
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    # chrome_options.add_argument("--headless")  # 可选：启用无界面模式
+
+    # 支持 Chromium（Docker 环境）
+    chrome_binary = os.getenv("CHROME_BINARY_PATH")
+    if chrome_binary:
+        chrome_options.binary_location = chrome_binary
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-gpu")
 
     driver = None
     try:

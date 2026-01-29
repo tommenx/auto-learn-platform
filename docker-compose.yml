@@ -7,9 +7,11 @@ services:
     environment:
       - USERNAME=${USERNAME}
       - PASSWORD=${PASSWORD}
+      - CAPTCHA_MODE=auto
       - CAPTCHA_API_URL=${CAPTCHA_API_URL}
       - CAPTCHA_API_KEY=${CAPTCHA_API_KEY}
-      - CHROME_DRIVER_PATH=/usr/local/bin/chromedriver
+      - CHROME_DRIVER_PATH=/usr/bin/chromedriver
+      - CHROME_BINARY_PATH=/usr/bin/chromium
       - MAX_PAGES=${MAX_PAGES:-999}
     volumes:
       # 持久化 cookies 和日志
