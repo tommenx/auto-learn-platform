@@ -2,8 +2,9 @@ version: '3.8'
 
 services:
   auto-learn:
+    image: auto-learn-platform:latest
     build: .
-    container_name: auto-learn-platform
+    container_name: auto-learn-${USER_TAG:-default}
     environment:
       - USERNAME=${USERNAME}
       - PASSWORD=${PASSWORD}
@@ -15,8 +16,8 @@ services:
       - MAX_PAGES=${MAX_PAGES:-999}
     volumes:
       # 持久化 cookies 和日志
-      - ./cookies.pkl:/app/cookies.pkl
-      - ./logs:/app/logs
+      - ./data/${USER_TAG:-default}/cookies.pkl:/app/cookies.pkl
+      - ./data/${USER_TAG:-default}/logs:/app/logs
     restart: unless-stopped
     # 共享内存大小（Chrome 需要）
     shm_size: '2gb'

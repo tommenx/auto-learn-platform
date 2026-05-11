@@ -22,6 +22,7 @@ env/
 
 # Environment files - IMPORTANT: keep credentials safe!
 .env
+.env.user*
 
 # Logs
 *.log
